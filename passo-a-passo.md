@@ -4,6 +4,9 @@
 
 ![1400605](img/1400605.jpg)
 
+![dr_strange_failure](img/dr_strange_failure.gif)
+
+
 
 ## Criando projeto com boilerplate
 
@@ -416,7 +419,35 @@ class PersonForm(forms.ModelForm):
 Mostrar `person_form.html` pronto.
 
 
-### Tela de Contato com forms.py e Django Widget Tweaks
+### Editar
+
+Edite `crm/urls.py`
+
+```python
+...
+path('<int:pk>/update', v.person_update, name='person_update'),
+...
+```
+
+Edite `crm/views.py`
+
+```python
+def person_update(request, pk):
+    template_name = 'crm/person_form.html'
+    instance = Person.objects.get(pk=pk)
+    form = PersonForm(request.POST or None, instance=instance)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('crm:person_list')
+
+    context = {'form': form}
+    return render(request, template_name, context)
+```
+
+
+## Tela de Contato com forms.py e Django Widget Tweaks
 
 https://pypi.org/project/django-widget-tweaks/
 
@@ -435,6 +466,7 @@ INSTALLED_APPS = [
 ```
 
 ```python
+# crm/forms.py
 class ContactForm(forms.Form):
     subject = forms.CharField(max_length=100)
     message = forms.CharField(widget=forms.Textarea)
@@ -445,11 +477,12 @@ class ContactForm(forms.Form):
 
 
 ```html
+<!-- contact_form.html -->
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
 {% block title %}
-  <title>Band Contact</title>
+  <title>Contact</title>
 {% endblock title %}
 
 {% block content %}
@@ -488,309 +521,85 @@ class ContactForm(forms.Form):
   <script>
     $(document).ready(function(){
       $('#id_cc_myself').removeClass('form-control');
-    })
+    });
   </script>
 {% endblock js %}
 ```
 
-![band_contact](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/band_contact.png)
+![band_contact](img/band_contact.png)
 
----
-
-### 6 - `form.as_p`
-
-```html
-<form class="form" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-```
-
----
-
-Jinja
-
-http://jinja.pocoo.org/
-
----
-
-
-```html
-<form class="form" method="POST">
-  <input type="hidden" name="csrfmiddlewaretoken" value="zoQhKvyhfA6wJjagdIFK4ofxsJfHAEgJbBu3QyaIMaFfXRYrPeaMdPDgRlqGUyPT">
-  <p>
-    <label for="id_subject">Subject:</label>
-    <input type="text" name="subject" maxlength="100" required id="id_subject">
-  </p>
-  <p>
-    <label for="id_message">Message:</label>
-    <textarea name="message" cols="40" rows="10" required id="id_message"></textarea>
-  </p>
-  <p>
-    <label for="id_sender">Sender:</label>
-    <input type="email" name="sender" required id="id_sender">
-  </p>
-  <p>
-    <label for="id_cc_myself">Cc myself:</label>
-    <input type="checkbox" name="cc_myself" id="id_cc_myself">
-  </p>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-```
-
----
-
-Live Code
-
-![t](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/dr_strange_failure.gif)
-
----
-
-Live Code - Fazer ele pegar os valores na view
-
-Segundo https://simpleisbetterthancomplex.com/series/2017/09/18/a-complete-beginners-guide-to-django-part-3.html#how-not-implement-a-form
-
-este é o jeito **errado** de implementar um formulário
-
-Perai... mas a doc... fala do template
-
-https://docs.djangoproject.com/en/2.2/topics/forms/#building-a-form
-
----
+Editar `crm/urls.py`
 
 ```python
-#views.py
-def my_send_email(request):
-    email = request.POST
-    # import ipdb; ipdb.set_trace()
-    subject = email.get('subject')
-    message = email.get('message')
-    sender = email.get('sender')
-    cc_myself = email.get('cc_myself')
-    # enviar email
-    pass
+path('contact/send/', v.send_contact, name='send_contact'),
 ```
 
----
-
-
-### 7 - Live Code completo
-
-![diagrama](https://raw.githubusercontent.com/rg3915/tutoriais/master/django-basic/img/diagrama.png)
-
-1. Criar url em urls.py
-2. Criar função em views.py
-3. Criar formulário em forms.py
-4. Criar template
-
----
-
-1. Criar url em urls.py
-
-```
-# urls.py
-path('band/create/', v.band_create, name='band_create'),
-```
-
----
-
-2. Criar função em views.py
+Editar `crm/views.py`
 
 ```python
-# views.py
-def band_create(request):
-    ''' https://coderwall.com/p/o8tida/better-way-to-initialize-django-forms '''
-    form = BandForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        # Process the data in form.cleaned_data
-        form.save()
-        return HttpResponseRedirect(resolve_url('bands'))
-    return render(request, 'bands/band_create.html', {'form': form})
-```
----
-
-3. Criar formulário em forms.py
-
-```python
-# forms.py
-class BandForm(forms.ModelForm):
-
-    class Meta:
-        model = Band
-        fields = '__all__'
-```
-
----
-
-4. Criar template
-
-```html
-# band_create.html
-{% extends "base.html" %}
-
-{% block title %}
-  <title>Band Create</title>
-{% endblock title %}
-
-{% block content %}
-
-  <h1>Band Create</h1>
-  <form class="form" method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-
-{% endblock content %}
-```
-
----
-
-### 8 - `form.as_table`
-
-```html
-<form class="form" method="POST">
-    {% csrf_token %}
-    {{ form.as_table }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-```
-
-```html
-<form class="form" method="POST">
-  <input type="hidden" name="csrfmiddlewaretoken" value="jKXg5XBxZoKCH8wJxDC8DDC48ofPUZrxVXB2b0dYwYjlVGkU997aM40Nx0qOeT0H">
-
-  <tr>
-    <th>
-      <label for="id_subject">Subject:</label>
-    </th>
-    <td>
-      <input type="text" name="subject" maxlength="100" required id="id_subject">
-    </td>
-  </tr>
-
-  <tr>
-    <th>
-      <label for="id_message">Message:</label>
-    </th>
-    <td>
-      <textarea name="message" cols="40" rows="10" required id="id_message">
-      </textarea>
-    </td>
-  </tr>
-
-  <tr>
-    <th>
-      <label for="id_sender">Sender:</label>
-    </th>
-    <td>
-      <input type="email" name="sender" required id="id_sender">
-    </td>
-  </tr>
-
-  <tr>
-    <th>
-      <label for="id_cc_myself">Cc myself:</label>
-    </th>
-    <td>
-      <input type="checkbox" name="cc_myself" id="id_cc_myself">
-    </td>
-  </tr>
-
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-```
-
----
-
-Seguir
-
-https://simpleisbetterthancomplex.com/tag/forms/
-
----
+from django.core.mail import send_mail
 
 
-### 9 - Manualmente
+def send_contact(request):
+    template_name = 'crm/contact_form.html'
+    form = ContactForm(request.POST or None)
 
-*Mostrar* https://docs.djangoproject.com/en/2.2/topics/forms/#rendering-fields-manually
-
----
-
-
-### 10 - Creating Forms The Right Way
-
-https://simpleisbetterthancomplex.com/series/2017/09/18/a-complete-beginners-guide-to-django-part-3.html#creating-forms-the-right-way
-
-Usando forms.py
-
-```python
-# forms.py
-class BandContactForm(forms.Form):
-    subject = forms.CharField(max_length=100)
-    message = forms.CharField(widget=forms.Textarea)
-    sender = forms.EmailField()
-    cc_myself = forms.BooleanField(required=False)
-```
-
-```python
-# views.py
-def band_contact(request):
-    """ A example of form """
     if request.method == 'POST':
-        form = BandContactForm(request.POST)
+        data = request.POST
+        subject = data.get('subject')
+        message = data.get('message')
+        sender = data.get('sender')
+
         if form.is_valid():
-            form.save()
-            # TODO: Implementar o send_email
-            return redirect('home')
-    else:
-        form = BandContactForm()
-    return render(request, 'bands/band_contact.html', {'form': form})
+            send_mail(
+                subject,
+                message,
+                sender,
+                ['localhost'],
+                fail_silently=False,
+            )
+            return redirect('core:index')
+
+    context = {'form': form}
+    return render(request, template_name, context)
 ```
 
----
-
-### 11 - django-widget-tweaks
-
-```
-pip install django-widget-tweaks==1.4.3
-```
-
-```python
-# settings.py
-INSTALLED_APPS = [
-    ...
-    'widget_tweaks',
-```
+Editar `nav.html`
 
 ```html
-# band_contact.html
-<form class="form" method="POST">
-{% csrf_token %}
-
-{% for field in form.visible_fields %}
-    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-
-    {% render_field field class="form-control" %}
-
-{% endfor %}
-
-<button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'crm:send_contact' %}">Contato</a>
+</li>
 ```
 
----
+Editar `base.html`
+
+```html
+{% block js %}{% endblock js %}
+```
+
+Enviar o e-mail com MailHog.
+
+```
+docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
+```
+
+Configurar `settings.py`
+
+```
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
+EMAIL_HOST = config('EMAIL_HOST', '0.0.0.0')  # localhost
+EMAIL_PORT = config('EMAIL_PORT', 1025, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+```
 
 
-### 12 - Setting arguments for widgets
 
-Mostrar
-
-https://docs.djangoproject.com/en/2.2/ref/forms/widgets/#setting-arguments-for-widgets
-
----
-
-### 13 - Django Bootstrap
+### Django Bootstrap
 
 https://github.com/zostera/django-bootstrap4
 
@@ -807,25 +616,30 @@ INSTALLED_APPS = [
 
 https://getbootstrap.com/
 
+Edite `base.html`
+
 ```html
-# base.html
-<!-- Bootstrap core CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+<!-- base.html -->
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
-
-<!-- Bootstrap core JS -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <!-- Bootstrap core JS -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 ```
 
+
+Edite `person_bootstrap_form.html`
+
 ```html
-# band_contact_bootstrap.html
+<!-- person_bootstrap_form.html -->
 {% extends "base.html" %}
 {% load bootstrap4 %}
 
 {% block content %}
+  <h1>Bootstrap form</h1>
 
   <form class="form" method="POST">
     {% csrf_token %}
@@ -839,6 +653,37 @@ https://getbootstrap.com/
 
 {% endblock content %}
 ```
+
+Editar `nav.html`
+
+```html
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'crm:person_bootstrap_create' %}">Bootstrap Create</a>
+</li>
+```
+
+Edite `crm/urls.py`
+
+```python
+path('bootstrap/create/', v.PersonBootstrapCreate.as_view(), name='person_bootstrap_create'),
+```
+
+Edite `crm/views.py`
+
+```python
+from django.views.generic import CreateView
+
+
+class PersonBootstrapCreate(CreateView):
+    model = Person
+    form_class = PersonForm
+    template_name = 'crm/person_bootstrap_form.html'
+```
+
+Leia [django-cbv-tutorial](https://github.com/rg3915/django-cbv-tutorial)
+
+E veja a Live [Django Class Based View como você nunca viu](https://youtu.be/C7Ecugxa7ic)
+
 
 ---
 
@@ -882,34 +727,19 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 {% endblock content %}
 ```
 
----
-
-
-### 15 - CreateView
-
-https://ccbv.co.uk/projects/Django/2.1/django.views.generic.edit/CreateView/
-
-```python
-class BandCreate(CreateView):
-    model = Band
-    form_class = BandForm
-    template_name = 'bands/band_form.html'
-    success_url = reverse_lazy('bands')
-```
-
----
-
-
-### 16 - UpdateView
-
-https://ccbv.co.uk/projects/Django/2.1/django.views.generic.edit/UpdateView/
+AQUI
 
 
 ---
 
 ### 17 - Upload File
 
-https://simpleisbetterthancomplex.com/tutorial/2016/08/01/how-to-upload-files-with-django.html
+
+YouTube: 
+
+Github: 
+
+
 
 implementar
     one file
@@ -917,54 +747,7 @@ implementar
 
 ---
 
-### 18 - inline_formset_factory
 
-Felipe Frizzo
-
-http://felipefrizzo.github.io/post/form-inline-cbv/
-
-http://felipefrizzo.github.io/post/form-inline/
-
-https://github.com/rg3915/vendas
-
-rg-vendas.herokuapp.com
-
----
-
-### 19 - django-registration-redux
-
-https://django-registration-redux.readthedocs.io/en/latest/
-
-![registration](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/SgFlV.jpg)
-
-![login](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/262249cf7d76163b5573bd325b3bd9674948ca8e.png)
-
-![reset password](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/password-change-form.png)
-
-Implementar, mostrar rodando
-
-
----
-
-![ajax](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/strange_ajax.jpg)
-
----
-
-![img Dr. Strange kickout](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/kickout.gif)
-
----
-
-![thor](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/strange_book.gif)
-
-Comecei a estudar...
-
----
-
-![dr_strange_failure](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/dr_strange_failure.gif)
-
-Agora eu faço um POST via Ajax!
-
----
 
 ### 20 - POST via Ajax (Live Code)
 

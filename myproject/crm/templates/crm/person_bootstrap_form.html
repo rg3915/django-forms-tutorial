@@ -1,0 +1,18 @@
+<!-- person_bootstrap_form.html -->
+{% extends "base.html" %}
+{% load bootstrap4 %}
+
+{% block content %}
+  <h1>Bootstrap form</h1>
+
+  <form class="form" method="POST">
+    {% csrf_token %}
+
+    {% bootstrap_form form %}
+
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    {% endbuttons %}
+  </form>
+
+{% endblock content %}

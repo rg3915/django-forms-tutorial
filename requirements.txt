@@ -6,3 +6,4 @@ Django==3.2.*
 Faker==8.5.1
 isort==5.8.0
 python-decouple==3.4
+django-bootstrap4==3.0.1

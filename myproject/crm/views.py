@@ -1,6 +1,8 @@
+from django.core.mail import send_mail
 from django.shortcuts import redirect, render
+from django.views.generic import CreateView
 
-from .forms import PersonForm0, PersonForm1, PersonForm
+from .forms import PersonForm0, PersonForm1, PersonForm, ContactForm
 from .models import Person
 
 
@@ -71,3 +73,47 @@ def person_create(request):
 
     context = {'form': form}
     return render(request, template_name, context)
+
+
+def person_update(request, pk):
+    template_name = 'crm/person_form.html'
+    instance = Person.objects.get(pk=pk)
+    form = PersonForm(request.POST or None, instance=instance)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('crm:person_list')
+
+    context = {'form': form}
+    return render(request, template_name, context)
+
+
+def send_contact(request):
+    template_name = 'crm/contact_form.html'
+    form = ContactForm(request.POST or None)
+
+    if request.method == 'POST':
+        data = request.POST
+        subject = data.get('subject')
+        message = data.get('message')
+        sender = data.get('sender')
+
+        if form.is_valid():
+            send_mail(
+                subject,
+                message,
+                sender,
+                ['localhost'],
+                fail_silently=False,
+            )
+            return redirect('core:index')
+
+    context = {'form': form}
+    return render(request, template_name, context)
+
+
+class PersonBootstrapCreate(CreateView):
+    model = Person
+    form_class = PersonForm
+    template_name = 'crm/person_bootstrap_form.html'
