@@ -8,4 +8,12 @@
     <li><b>Nome:</b> {{ object.full_name }}</li>
     <li><b>E-mail:</b> {{ object.email|default:'---' }}</li>
   </ul>
+
+  <div>
+    {% for item in object.photos.all %}
+      {% if item.photo %}
+        <img src="{{ item.photo.url }}" alt="" class="img-thumbnail" width="150px">
+      {% endif %}
+    {% endfor %}
+  </div>
 {% endblock content %}

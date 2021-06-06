@@ -29,3 +29,21 @@ class Person(UuidModel, TimeStampedModel, Address, Document, Active):
 
     def get_absolute_url(self):
         return reverse_lazy('crm:person_detail', kwargs={'pk': self.pk})
+
+
+class Photo(models.Model):
+    photo = models.ImageField('foto', upload_to='')
+    person = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        verbose_name='foto',
+        related_name='photos',
+    )
+
+    class Meta:
+        ordering = ('pk',)
+        verbose_name = 'foto'
+        verbose_name_plural = 'fotos'
+
+    def __str__(self):
+        return str(self.person)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Person
+from .models import Person, Photo
 
 
 @admin.register(Person)
@@ -13,3 +13,6 @@ class PersonAdmin(admin.ModelAdmin):
     # date_hierarchy = 'created'
     # ordering = ('-created',)
     # actions = ('',)
+
+
+admin.site.register(Photo)

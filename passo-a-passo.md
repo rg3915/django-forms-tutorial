@@ -687,7 +687,7 @@ E veja a Live [Django Class Based View como você nunca viu](https://youtu.be/C7
 
 ---
 
-### 14 - Django Crispy Forms
+### Django Crispy Forms
 
 https://django-crispy-forms.readthedocs.io/en/latest/
 
@@ -710,7 +710,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 ```
 
 ```html
-# band_contact_crispy.html
+<!-- person_crispy_form.html -->
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 
@@ -727,23 +727,204 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 {% endblock content %}
 ```
 
-AQUI
+Editar `nav.html`
+
+```html
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'crm:person_crispy_create' %}">Crispy Create</a>
+</li>
+```
+
+Editar `crm/urls.py`
+
+```python
+path('crispy/create/', v.PersonCrispyCreate.as_view(), name='person_crispy_create'),
+```
+
+Editar `crm/views.py`
+
+```python
+class PersonCrispyCreate(CreateView):
+    model = Person
+    form_class = PersonForm
+    template_name = 'crm/person_crispy_form.html'
+```
 
 
 ---
 
-### 17 - Upload File
+### Upload File
 
 
-YouTube: 
+YouTube: https://youtu.be/yCh7iINWMRs
 
-Github: 
+Github: https://github.com/rg3915/gallery
 
 
+Editar `settings.py`
 
-implementar
-    one file
-    multiple files
+```python
+# settings.py
+...
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR.joinpath('media')
+...
+```
+
+
+Editar `urls.py`
+
+```python
+# urls.py
+from django.conf import settings
+from django.conf.urls.static import static
+
+...
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
+    )
+```
+
+
+Editar `crm/models.py`
+
+```python
+class Photo(models.Model):
+    photo = models.ImageField('foto', upload_to='')
+    person = models.ForeignKey(
+        Person,
+        on_delete=models.CASCADE,
+        verbose_name='foto',
+        related_name='photos',
+    )
+
+    class Meta:
+        ordering = ('pk',)
+        verbose_name = 'foto'
+        verbose_name_plural = 'fotos'
+
+    def __str__(self):
+        return str(self.person)
+```
+
+
+Editar `crm/admin.py`
+
+```python
+admin.site.register(Photo)
+```
+
+Editar `crm/urls.py`
+
+```python
+path('photo/create/', v.photo_create, name='photo_create'),
+```
+
+Editar `person_list.html`
+
+```html
+<a class="btn btn-primary" href="{% url 'crm:photo_create' %}">Adicionar com Foto</a>
+```
+
+Editar `person_detail.html`
+
+```html
+<div>
+  {% for item in object.photos.all %}
+    {% if item.photo %}
+      <img src="{{ item.photo.url }}" alt="" class="img-thumbnail" width="150px">
+    {% endif %}
+  {% endfor %}
+</div>
+```
+
+Editar `person_photo_form.html`
+
+```html
+<!-- person_photo_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Formulário com Foto</h1>
+  <div class="cols-6">
+    <form class="form-horizontal" action="." method="POST" enctype="multipart/form-data">
+      <div class="col-sm-6">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock content %}
+```
+
+Editar `crm/forms.py`
+
+```python
+class PersonPhotoForm(forms.ModelForm):
+    required_css_class = 'required'
+    photo = forms.ImageField(required=False)
+    # photo = forms.FileField(
+    #     required=False,
+    #     widget=forms.ClearableFileInput(attrs={'multiple': True})
+    # )
+
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name', 'photo')
+
+    def __init__(self, *args, **kwargs):
+        super(PersonPhotoForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+        self.fields['photo'].widget.attrs['class'] = None
+```
+
+Editar `crm/views.py` para um arquivo
+
+```python
+def photo_create(request):
+    template_name = 'crm/person_photo_form.html'
+    form = PersonPhotoForm(request.POST or None)
+    if request.method == 'POST':
+        photo = request.FILES.get('photo')
+        if form.is_valid():
+            person = form.save()
+            Photo.objects.create(person=person, photo=photo)
+            return redirect('crm:person_detail', person.pk)
+    context = {'form': form}
+    return render(request, template_name, context)
+```
+
+Editar `crm/views.py` para vários arquivos
+
+```python
+def photo_create(request):
+    template_name = 'crm/person_photo_form.html'
+    form = PersonPhotoForm(request.POST or None)
+
+    if request.method == 'POST':
+        photos = request.FILES.getlist('photo')
+
+        if form.is_valid():
+            person = form.save()
+
+            for photo in photos:
+                Photo.objects.create(person=person, photo=photo)
+
+            return redirect('crm:person_detail', person.pk)
+
+    context = {'form': form}
+    return render(request, template_name, context)
+```
+
+AQUI
+
 
 ---
 
