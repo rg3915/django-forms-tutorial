@@ -28,3 +28,4 @@ python manage.py migrate
 python manage.py createsuperuser --username="admin" --email=""
 ```
 
+Leia o [passo-a-passo.md](passo-a-passo.md)
