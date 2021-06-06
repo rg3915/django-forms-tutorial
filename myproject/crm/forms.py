@@ -3,6 +3,27 @@ from django import forms
 from .models import Person
 
 
+class PersonForm0(forms.ModelForm):
+    required_css_class = 'required'
+
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name')
+
+
+class PersonForm1(forms.ModelForm):
+    required_css_class = 'required'
+
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name')
+
+    def __init__(self, *args, **kwargs):
+        super(PersonForm1, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+
 class PersonForm(forms.ModelForm):
     required_css_class = 'required'
 
@@ -32,3 +53,10 @@ class PersonForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
         self.fields['active'].widget.attrs['class'] = None
+
+
+class ContactForm(forms.Form):
+    subject = forms.CharField(max_length=100)
+    message = forms.CharField(widget=forms.Textarea)
+    sender = forms.EmailField()
+    cc_myself = forms.BooleanField(required=False)

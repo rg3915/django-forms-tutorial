@@ -11,7 +11,7 @@ from myproject.core.models import (
 
 
 class Person(UuidModel, TimeStampedModel, Address, Document, Active):
-    first_name = models.CharField('nome', max_length=50)
+    first_name = models.CharField('nome', max_length=50, help_text='Digite somente o primeiro nome.')
     last_name = models.CharField('sobrenome', max_length=50, null=True, blank=True)  # noqa E501
     email = models.EmailField(null=True, blank=True)
 

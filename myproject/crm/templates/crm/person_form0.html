@@ -1,0 +1,41 @@
+<!-- person_form0.html -->
+{% extends "base.html" %}
+
+{% block css %}
+  <style>
+    .required:after {
+      content: "*";
+      color: red;
+    }
+    .errorlist {
+      list-style: none;
+      color: red;
+    }
+  </style>
+{% endblock css %}
+
+{% block content %}
+  <h1>Formulário</h1>
+  <div class="cols-6">
+    <form class="form-horizontal" action="." method="POST">
+      {% csrf_token %}
+      <div class="col-sm-6">
+        <div class="form-group">
+          <label for="id_first_name" class="required">Nome</label>
+          <input id="id_first_name" type="text" name="first_name" class="form-control">
+          {{ form.first_name.errors }}
+        </div>
+
+        <div class="form-group">
+          <label for="id_last_name">Sobrenome</label>
+          <input id="id_last_name" type="text" name="last_name" class="form-control">
+          {{ form.last_name.errors }}
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock content %}
