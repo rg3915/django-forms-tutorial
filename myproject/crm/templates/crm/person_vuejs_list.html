@@ -11,6 +11,9 @@
   .form-control {
     margin-left: 10px;
   }
+  .is-link {
+    cursor: pointer;
+  }
 </style>
 
 {% endblock css %}
@@ -47,6 +50,7 @@
       <tr>
         <th>Nome</th>
         <th>E-mail</th>
+        <th>Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -55,6 +59,9 @@
           <a :href="'/crm/' + person.id">${ person | fullName }</a>
         </td>
         <td>${ person.email }</td>
+        <td>
+          <i class="fa fa-close no is-link" @click="deletePerson(person)"></i>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -79,10 +86,7 @@
       }
     },
     created() {
-      axios.get('/crm/vuejs/json/')
-        .then(response => {
-          this.persons = response.data.data
-        })
+      this.getData()
     },
     filters: {
       fullName(value) {
@@ -90,6 +94,12 @@
       }
     },
     methods: {
+      getData() {
+        axios.get('/crm/vuejs/json/')
+        .then(response => {
+          this.persons = response.data.data
+        })
+      },
       submitForm() {
         // Caso queira enviar uma string de valores...
         // const payload = JSON.stringify(this.form)
@@ -106,6 +116,13 @@
             this.persons.push(response.data.data)
           })
           this.form = {}
+      },
+      deletePerson(item) {
+        axios.delete(`/crm/${item.id}/vuejs/delete/`)
+          .then(() => {
+            const resIndex = this.persons.find(res => res.id === item.id);
+            this.persons.splice(resIndex, 1);
+          })
       }
     }
   });

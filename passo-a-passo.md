@@ -1201,6 +1201,9 @@ path('vuejs/create/', v.person_vuejs_create, name='person_vuejs_create'),
   .form-control {
     margin-left: 10px;
   }
+  .is-link {
+    cursor: pointer;
+  }
 </style>
 
 {% endblock css %}
@@ -1269,10 +1272,7 @@ path('vuejs/create/', v.person_vuejs_create, name='person_vuejs_create'),
       }
     },
     created() {
-      axios.get('/crm/vuejs/json/')
-        .then(response => {
-          this.persons = response.data.data
-        })
+      this.getData()
     },
     filters: {
       fullName(value) {
@@ -1280,7 +1280,12 @@ path('vuejs/create/', v.person_vuejs_create, name='person_vuejs_create'),
       }
     },
     methods: {
-      // Todo
+      getData() {
+        axios.get('/crm/vuejs/json/')
+        .then(response => {
+          this.persons = response.data.data
+        })
+      },
     }
   });
 </script>
@@ -1338,6 +1343,43 @@ methods: {
   }
 }
 ```
+
+### Deletar itens
+
+Editar `urls.py`
+
+```python
+path('<int:pk>/vuejs/delete/', v.person_vuejs_delete, name='person_vuejs_delete'),
+```
+
+Editar `views.py`
+
+```python
+def person_vuejs_delete(request, pk):
+    if request.method == 'DELETE':
+        person = Person.objects.get(pk=pk)
+        person.delete()
+    return JsonResponse({'status': 204})
+```
+
+Editar `person_vuejs_list.html`
+
+```html
+<td>
+  <i class="fa fa-close no is-link" @click="deletePerson(person)"></i>
+</td>
+```
+
+```js
+deletePerson(item) {
+  axios.delete(`/crm/${item.id}/vuejs/delete/`)
+    .then(() => {
+      const resIndex = this.persons.find(res => res.id === item.id);
+      this.persons.splice(resIndex, 1);
+    })
+}
+```
+
 
 ---
 

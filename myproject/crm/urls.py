@@ -17,5 +17,6 @@ urlpatterns = [
     path('vuejs/json/', v.person_json, name='person_json'),
     path('vuejs/create/', v.person_vuejs_create, name='person_vuejs_create'),
     path('<int:pk>/update/', v.person_update, name='person_update'),
+    path('<int:pk>/vuejs/delete/', v.person_vuejs_delete, name='person_vuejs_delete'),
     path('contact/send/', v.send_contact, name='send_contact'),
 ]

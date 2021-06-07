@@ -200,3 +200,10 @@ def person_vuejs_create(request):
             person = form.save()
             data = person.to_dict()
             return JsonResponse({'data': data})
+
+
+def person_vuejs_delete(request, pk):
+    if request.method == 'DELETE':
+        person = Person.objects.get(pk=pk)
+        person.delete()
+    return JsonResponse({'status': 204})
