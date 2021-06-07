@@ -29,3 +29,10 @@ python manage.py createsuperuser --username="admin" --email=""
 ```
 
 Leia o [passo-a-passo.md](passo-a-passo.md)
+
+![login.png](img/login.png)
+
+---
+
+![band_contact](img/band_contact.png)
+
