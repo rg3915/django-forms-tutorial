@@ -1,15 +1,23 @@
 from django.core.mail import send_mail
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import CreateView
 
-from .forms import PersonForm0, PersonForm1, PersonForm, ContactForm, PersonPhotoForm
+from .forms import (
+    ContactForm,
+    PersonForm,
+    PersonForm0,
+    PersonForm1,
+    PersonPhotoForm
+)
 from .models import Person, Photo
 
 
 def person_list(request):
     template_name = 'crm/person_list.html'
     object_list = Person.objects.all()
-    context = {'object_list': object_list}
+    form = PersonForm1
+    context = {'object_list': object_list, 'form': form}
     return render(request, template_name, context)
 
 
@@ -158,3 +166,12 @@ def photo_create(request):
 
     context = {'form': form}
     return render(request, template_name, context)
+
+
+def person_create_ajax(request):
+    form = PersonForm1(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            person = form.save()
+            data = [person.to_dict()]
+            return JsonResponse({'data': data})

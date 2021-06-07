@@ -12,6 +12,7 @@ urlpatterns = [
     path('photo/create/', v.photo_create, name='photo_create'),
     path('bootstrap/create/', v.PersonBootstrapCreate.as_view(), name='person_bootstrap_create'),
     path('crispy/create/', v.PersonCrispyCreate.as_view(), name='person_crispy_create'),
+    path('create/ajax/', v.person_create_ajax, name='person_create_ajax'),
     path('<int:pk>/update/', v.person_update, name='person_update'),
     path('contact/send/', v.send_contact, name='send_contact'),
 ]

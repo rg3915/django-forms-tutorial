@@ -6,6 +6,7 @@
     Lista
     <a class="btn btn-primary" href="{% url 'crm:person_create' %}">Adicionar</a>
     <a class="btn btn-primary" href="{% url 'crm:photo_create' %}">Adicionar com Foto</a>
+    <a class="btn btn-primary" style="color: white;" data-toggle="modal" data-target="#myModal">Adicionar via Ajax</a>
   </h1>
   <table class="table">
     <thead>
@@ -35,4 +36,51 @@
     </tbody>
   </table>
   {% include "includes/pagination.html" %}
+  {% include "./person_modal.html" %}
 {% endblock content %}
+
+{% block js %}
+
+<script>
+  $('form').on('submit', function(e) {
+    let url = '/crm/create/ajax/'
+    let postData = $('form').serialize();
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: postData,
+      success: function(response) {
+        // TODO
+        console.log(response.data)
+        addItem(response)
+      },
+      error: function(xhr) {
+        console.log('Erro');
+      },
+      complete: function() {
+        closeModal()
+      }
+    });
+    e.preventDefault();
+  });
+
+  function addItem(response) {
+    const data = response.data[0];
+    const template = '<tr>' +
+      '<td>' + data.first_name + ' ' + data.last_name + '</td>' +
+      '<td>' + data.email + '</td>' +
+      '</tr>'
+
+    $('table tbody').append(template)
+  };
+
+  function closeModal() {
+    $('#myModal').modal('hide');
+    // Limpa os campos
+    $('#id_first_name').val('');
+    $('#id_last_name').val('');
+    $('#id_email').val('');
+  }
+</script>
+
+{% endblock js %}

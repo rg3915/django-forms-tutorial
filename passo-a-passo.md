@@ -256,6 +256,7 @@ Edite `crm/views.py`
 ```python
 from .forms import PersonForm0
 
+
 def person_create(request):
     template_name = 'crm/person_form0.html'
     form = PersonForm0(request.POST or None)
@@ -923,184 +924,132 @@ def photo_create(request):
     return render(request, template_name, context)
 ```
 
-AQUI
-
-
 ---
 
 
-
-### 20 - POST via Ajax (Live Code)
+### POST via Ajax (Live Code)
 
 1. Requer jQuery
-2. Criar um template com ListView
-3. Criar formulário num Modal
-4. Criar uma url para fazer o Post
-5. Criar View que salva os dados
-6. Fazer o Post via Ajax
-7. Retornar os novos dados na tabela
+2. Criar formulário num Modal
+3. Criar uma url para fazer o Post
+4. Criar View que salva os dados
+5. Fazer o Post via Ajax
+6. Retornar os novos dados na tabela
 
----
 
 1. Requer jQuery
 
 ```html
-# base.html
-<script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+<!-- base.html -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 ```
 
----
-
-2. Criar um template com ListView
-
-* 2.1. url
-* 2.2. view
-* 2.3. template
-
----
-
-2.1. url
-
-```python
-# urls.py
-path('members/', v.MemberList.as_view(), name='members'),
-```
-
----
-
-
-2.2. view
-
-```python
-# views.py
-class MemberList(ListView):
-    model = Member
-    # template_name =
-    # context_object_name =
-    paginate_by = 10
-```
-
-
----
-
-2.3. template
+2. Criar formulário com Modal
 
 ```html
-# member_list.html
-{% extends "base.html" %}
-
-{% block title %}
-    <title>Member List</title>
-{% endblock title %}
-
-{% block content %}
-    <h1>All Members</h1>
-
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Instrument</th>
-          <th>Band</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for object in object_list %}
-          <tr>
-            <td>{{ object.name }}</td>
-            <td>{{ object.get_instrument_display }}</td>
-            <td>{{ object.band }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-{% endblock content %}
-```
-
-
----
-
-
-3. Criar formulário com Modal
-
-```html
+<!-- person_modal.html -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title" id="myModalLabel">Add Member</h4>
+        <h4 class="modal-title" id="myModalLabel">Adicionar Pessoa</h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <!-- Formulario -->
-      <form action="">
+      <form>
         <div class="modal-body">
           <div class="form-group">
-            {{ form.name.label }}
-            {% render_field form.name class="form-control" %}
+            {{ form.as_p }}
           </div>
-
-          <div class="form-group">
-            {{ form.instrument.label }}
-            {% render_field form.instrument class="form-control" %}
-          </div>
-
-          <div class="form-group">
-            {{ form.band.label }}
-            {% render_field form.band class="form-control" %}
-          </div>
-
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
         </div>
       </form>
-
     </div>
   </div>
 </div>
 ```
 
----
+
+Editar `crm/person_list.html`
+
+```html
+<a class="btn btn-primary" style="color: white;" data-toggle="modal" data-target="#myModal">Adicionar via Ajax</a>
+...
+{% include "./person_modal.html" %}
+```
 
 
-4. Criar uma url para fazer o Post
+Editar crm/views.py
+
+```python
+def person_list(request):
+    template_name = 'crm/person_list.html'
+    object_list = Person.objects.all()
+    form = PersonForm1
+    context = {'object_list': object_list, 'form': form}
+    return render(request, template_name, context)
+```
+
+
+
+3. Criar uma url para fazer o Post
 
 ```python
 # urls.py
-path('members/add/ajax', v.members_add_ajax, name='members_add_ajax'),
+path('create/ajax/', v.person_create_ajax, name='person_create_ajax'),
 ```
 
 ---
 
 
-5. Criar View que salva os dados
+4. Criar View que salva os dados
+
+Editar crm/views.py
+
 
 ```python
-def members_add_ajax(request):
-    data = request.POST
-    # import ipdb; ipdb.set_trace()
-    name = data.get('name')
-    instrument = data.get('instrument')
-    band_pk = data.get('band')
-    band = Band.objects.get(pk=band_pk)
+from django.http import JsonResponse
 
-    member = Member.objects.create(name=name, instrument=instrument, band=band)
-    data = [member.to_dict_json()]
-    return JsonResponse({'data': data})
+
+def person_create_ajax(request):
+    form = PersonForm1(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            person = form.save()
+            data = [person.to_dict()]
+            return JsonResponse({'data': data})
 ```
 
+
+Editar `crm/models.py`
+
+```python
+def to_dict(self):
+    return {
+        'id': self.id,
+        'first_name': self.first_name,
+        'last_name': self.last_name,
+        'email': self.email,
+    }
+```
 
 ---
 
 
 
-6. Fazer o Post via Ajax
+5. Fazer o Post via Ajax
 
 Requer `django-ajax-setup.js`
 
-https://docs.djangoproject.com/en/2.2/ref/csrf/#ajax
+```
+mkdir myproject/core/static/js
+touch myproject/core/static/js/django-ajax-setup.js
+```
+
+https://docs.djangoproject.com/en/3.2/ref/csrf/#ajax
 
 ```js
 // set up jQuery ajax object to always send CSRF token in headers
@@ -1133,67 +1082,70 @@ $.ajaxSetup({
 });
 ```
 
----
+Editar `crm/person_list.html`
 
 
 ```js
+{% block js %}
+
 <script>
-  $('#save').on('click', function(e) {
-      let url = '/members/add/ajax/'
-      let postData = $('form').serialize();
-      $.ajax({
-        url: url,
-        type: 'POST',
-        data: postData,
-        success: function(response) {
-          // TODO
-        },
-        error: function(xhr) {
-          console.log('Erro');
-        },
-        complete: function() {
-          // TODO
-        }
-      });
+  $('form').on('submit', function(e) {
+    let url = '/crm/create/ajax/'
+    let postData = $('form').serialize();
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: postData,
+      success: function(response) {
+        // TODO
+        console.log(response.data)
+        // addItem(response)
+      },
+      error: function(xhr) {
+        console.log('Erro');
+      },
+      complete: function() {
+        // closeModal()
+      }
+    });
     e.preventDefault();
   });
 </script>
+
+{% endblock js %}
 ```
 
 ---
 
 
 
-7. Retornar os novos dados na tabela
+6. Retornar os novos dados na tabela
 
 ```js
-success: function(response) {
-  var template = '<tr>' +
-      '<td>' + response.data[0].name + '</td>' +
-      '<td>' + response.data[0].instrument + '</td>' +
-      '<td>' + response.data[0].band + '</td>' +
-      '</tr>'
+function addItem(response) {
+  const data = response.data[0];
+  const template = '<tr>' +
+    '<td>' + data.first_name + ' ' + data.last_name + '</td>' +
+    '<td>' + data.email + '</td>' +
+    '</tr>'
 
-  $('#table tbody').append(template)
-},
-error: function(xhr) {
-  console.log('Erro');
-},
-complete: function() {
-  // Fecha modal
+  $('table tbody').append(template)
+};
+
+function closeModal() {
   $('#myModal').modal('hide');
   // Limpa os campos
-  $('#id_name').val('');
-  $('#id_instrument').val('');
-  $('#id_band').val('');
+  $('#id_first_name').val('');
+  $('#id_last_name').val('');
+  $('#id_email').val('');
 }
 ```
 
+**Atenção:** Não esquecer de chamar a função em `success` e em `complete`.
+
 
 
 ---
-
-
 
 
 ### 21 - POST com VueJS

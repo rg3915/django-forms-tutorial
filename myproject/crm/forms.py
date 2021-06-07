@@ -16,7 +16,7 @@ class PersonForm1(forms.ModelForm):
 
     class Meta:
         model = Person
-        fields = ('first_name', 'last_name')
+        fields = ('first_name', 'last_name', 'email')
 
     def __init__(self, *args, **kwargs):
         super(PersonForm1, self).__init__(*args, **kwargs)

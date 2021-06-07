@@ -30,6 +30,14 @@ class Person(UuidModel, TimeStampedModel, Address, Document, Active):
     def get_absolute_url(self):
         return reverse_lazy('crm:person_detail', kwargs={'pk': self.pk})
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+        }
+
 
 class Photo(models.Model):
     photo = models.ImageField('foto', upload_to='')
