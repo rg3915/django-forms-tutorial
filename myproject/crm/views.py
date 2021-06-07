@@ -170,8 +170,33 @@ def photo_create(request):
 
 def person_create_ajax(request):
     form = PersonForm1(request.POST or None)
+
     if request.method == 'POST':
         if form.is_valid():
             person = form.save()
             data = [person.to_dict()]
+            return JsonResponse({'data': data})
+
+
+def person_vuejs_list(request):
+    # Renderiza a página
+    template_name = 'crm/person_vuejs_list.html'
+    return render(request, template_name)
+
+
+def person_json(request):
+    # Retorna os dados
+    persons = Person.objects.all()
+    data = [person.to_dict() for person in persons]
+    return JsonResponse({'data': data})
+
+
+def person_vuejs_create(request):
+    # Salva os dados
+    form = PersonForm1(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            person = form.save()
+            data = person.to_dict()
             return JsonResponse({'data': data})

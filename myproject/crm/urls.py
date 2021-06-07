@@ -13,6 +13,9 @@ urlpatterns = [
     path('bootstrap/create/', v.PersonBootstrapCreate.as_view(), name='person_bootstrap_create'),
     path('crispy/create/', v.PersonCrispyCreate.as_view(), name='person_crispy_create'),
     path('create/ajax/', v.person_create_ajax, name='person_create_ajax'),
+    path('vuejs/', v.person_vuejs_list, name='person_vuejs_list'),
+    path('vuejs/json/', v.person_json, name='person_json'),
+    path('vuejs/create/', v.person_vuejs_create, name='person_vuejs_create'),
     path('<int:pk>/update/', v.person_update, name='person_update'),
     path('contact/send/', v.send_contact, name='send_contact'),
 ]

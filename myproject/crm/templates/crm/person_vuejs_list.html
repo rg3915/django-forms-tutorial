@@ -1,0 +1,114 @@
+<!-- person_vuejs_list.html -->
+{% extends "base.html" %}
+
+{% block css %}
+
+<style>
+  .form-inline {
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .form-control {
+    margin-left: 10px;
+  }
+</style>
+
+{% endblock css %}
+
+{% block content %}
+
+<div id="app">
+  <div>
+    <h1>Pessoas com VueJS</h1>
+  </div>
+
+  <div>
+    <form @submit.prevent="submitForm" @keyup.enter="submitForm" class="form-inline" method="POST">
+      <div class="form-group">
+        <label class="required">Nome</label>
+        <input type="text" v-model="form.first_name" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="required">Sobrenome</label>
+        <input type="text" v-model="form.last_name" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="required">E-mail</label>
+        <input type="email" v-model="form.email" class="form-control">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>E-mail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="person in persons" :key="person.id">
+        <td>
+          <a :href="'/crm/' + person.id">${ person | fullName }</a>
+        </td>
+        <td>${ person.email }</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{% endblock content %}
+
+{% block vuejs %}
+
+<script>
+  axios.defaults.xsrfHeaderName = "X-CSRFToken";
+  axios.defaults.xsrfCookieName = "csrftoken";
+  var app = new Vue({
+    el: '#app',
+    delimiters: ['${', '}'],
+    data: {
+      persons: [],
+      form: {
+        first_name: '',
+        last_name: '',
+        email: '',
+      }
+    },
+    created() {
+      axios.get('/crm/vuejs/json/')
+        .then(response => {
+          this.persons = response.data.data
+        })
+    },
+    filters: {
+      fullName(value) {
+        return value.first_name + ' ' + value.last_name
+      }
+    },
+    methods: {
+      submitForm() {
+        // Caso queira enviar uma string de valores...
+        // const payload = JSON.stringify(this.form)
+
+        // Vamos trabalhar com formulário
+        let bodyFormData = new FormData()
+
+        bodyFormData.append('first_name', this.form.first_name)
+        bodyFormData.append('last_name', this.form.last_name)
+        bodyFormData.append('email', this.form.email)
+
+        axios.post('/crm/vuejs/create/', bodyFormData)
+          .then(response => {
+            this.persons.push(response.data.data)
+          })
+          this.form = {}
+      }
+    }
+  });
+</script>
+
+{% endblock vuejs %}

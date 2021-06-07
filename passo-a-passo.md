@@ -1147,98 +1147,113 @@ function closeModal() {
 
 ---
 
-
-### 21 - POST com VueJS
+### POST com VueJS
 
 1. Requer VueJS + Axios
 2. Criar um template com função
-3. Usar View `members_add_ajax`
+3. Editar views.py
 4. Fazer o Post via Axios
 
 ---
 
 1. Requer VueJS + Axios
 
+Editar `base.html`
+
 ```
 <!-- Vue -->
-<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
 <!-- Axios -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+{% block vuejs %}{% endblock vuejs %}
 ```
 
----
-
-2. Criar um template com função
-
-```python
-# views.py
-def members_vue(request):
-    return render(request, 'bands/members_vue.html')
-```
-
-```python
-# urls.py
-path('members_vue/', v.members_vue, name='members_vue'),
-```
-
----
-
-O template é members_vue.html
+Editar `nav.html`
 
 ```html
-# members_vue.html
+<li class="nav-item">
+  <a class="nav-link" href="{% url 'crm:person_vuejs_list' %}">Person VueJS Create</a>
+</li>
+```
+
+Editar `crm/urls.py`
+
+```python
+path('vuejs/', v.person_vuejs_list, name='person_vuejs_list'),
+path('vuejs/json/', v.person_json, name='person_json'),
+path('vuejs/create/', v.person_vuejs_create, name='person_vuejs_create'),
+```
+
+2. Editar `person_vuejs_list.html`
+
+```html
+<!-- person_vuejs_list.html -->
 {% extends "base.html" %}
 
-{% block title %}
-    <title>Members Vue</title>
-{% endblock title %}
+{% block css %}
+
+<style>
+  .form-inline {
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .form-control {
+    margin-left: 10px;
+  }
+</style>
+
+{% endblock css %}
 
 {% block content %}
 
-<!-- Vue -->
-<script src="https://cdn.jsdelivr.net/npm/vue"></script>
-<!-- Axios -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-
 <div id="app">
-
-  <div class="float-left">
-    <h1>Members with Vue</h1>
+  <div>
+    <h1>Pessoas com VueJS</h1>
   </div>
 
-  <table id="table" class="table">
+  <div>
+    <form @submit.prevent="submitForm" @keyup.enter="submitForm" class="form-inline" method="POST">
+      <div class="form-group">
+        <label class="required">Nome</label>
+        <input type="text" v-model="form.first_name" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="required">Sobrenome</label>
+        <input type="text" v-model="form.last_name" class="form-control">
+      </div>
+      <div class="form-group">
+        <label class="required">E-mail</label>
+        <input type="email" v-model="form.email" class="form-control">
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+
+  <table class="table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Instrument</th>
-        <th>Band</th>
+        <th>Nome</th>
+        <th>E-mail</th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="member in members" :key="member.id">
-        <td>${ member.name }</td>
-        <td>${ member.instrument }</td>
-        <td>${ member.band }</td>
+      <tr v-for="person in persons" :key="person.id">
+        <td>
+          <a :href="'/crm/' + person.id">${ person | fullName }</a>
+        </td>
+        <td>${ person.email }</td>
       </tr>
     </tbody>
   </table>
-
 </div>
 
 {% endblock content %}
-```
 
+{% block vuejs %}
 
-
----
-
-3. Usar View `members_add_ajax`
-
----
-
-4. Fazer o Post via Axios
-
-```vue
 <script>
   axios.defaults.xsrfHeaderName = "X-CSRFToken";
   axios.defaults.xsrfCookieName = "csrftoken";
@@ -1246,42 +1261,82 @@ O template é members_vue.html
     el: '#app',
     delimiters: ['${', '}'],
     data: {
-      members: [],
-      name: '',
-      instrument: '',
-      band: '',
-      url: '/members/json/',
-      url_add: '/members/add/ajax/'
+      persons: [],
+      form: {
+        first_name: '',
+        last_name: '',
+        email: '',
+      }
     },
-    created () {
-      axios.get(this.url)
-      .then(result => {
-        this.members = result.data.data
-      })
+    created() {
+      axios.get('/crm/vuejs/json/')
+        .then(response => {
+          this.persons = response.data.data
+        })
+    },
+    filters: {
+      fullName(value) {
+        return value.first_name + ' ' + value.last_name
+      }
     },
     methods: {
-      add () {
-        let bodyFormData = new FormData()
-        bodyFormData.append('name', this.name)
-        bodyFormData.append('instrument', this.instrument)
-        bodyFormData.append('band', this.band)
-        axios.post(this.url_add, bodyFormData)
-        .then(response => {
-          this.members.push(
-            {
-              name: response.data.data[0].name,
-              instrument: response.data.data[0].instrument,
-              band: response.data.data[0].band,
-            }
-          )
-          this.name = ''
-          this.instrument = ''
-          this.band = ''
-        })
-      }
+      // Todo
     }
   });
 </script>
+
+{% endblock vuejs %}
+```
+
+3. Editar `crm/views.py`
+
+```python
+def person_vuejs_list(request):
+    # Renderiza a página
+    template_name = 'crm/person_vuejs_list.html'
+    return render(request, template_name)
+
+
+def person_json(request):
+    # Retorna os dados
+    persons = Person.objects.all()
+    data = [person.to_dict() for person in persons]
+    return JsonResponse({'data': data})
+
+
+def person_vuejs_create(request):
+    # Salva os dados
+    form = PersonForm1(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            person = form.save()
+            data = person.to_dict()
+            return JsonResponse({'data': data})
+```
+
+4. Fazer o Post via Axios
+
+```js
+methods: {
+  submitForm() {
+    // Caso queira enviar uma string de valores...
+    // const payload = JSON.stringify(this.form)
+
+    // Vamos trabalhar com formulário
+    let bodyFormData = new FormData()
+
+    bodyFormData.append('first_name', this.form.first_name)
+    bodyFormData.append('last_name', this.form.last_name)
+    bodyFormData.append('email', this.form.email)
+
+    axios.post('/crm/vuejs/create/', bodyFormData)
+      .then(response => {
+        this.persons.push(response.data.data)
+      })
+      this.form = {}
+  }
+}
 ```
 
 ---
