@@ -27,7 +27,7 @@ source boilerplatesimple.sh
 
 ---
 
-### 1 - Admin - Login
+## 1 - Admin - Login
 
 ![login.png](img/login.png)
 
@@ -56,7 +56,7 @@ https://github.com/django/django/blob/master/django/contrib/admin/templates/admi
 
 ---
 
-### 2 - [Building a form](https://docs.djangoproject.com/en/3.2/topics/forms/#building-a-form)
+## 2 - [Building a form](https://docs.djangoproject.com/en/3.2/topics/forms/#building-a-form)
 
 https://docs.djangoproject.com/en/3.2/topics/forms/#building-a-form
 
@@ -448,7 +448,7 @@ def person_update(request, pk):
 ```
 
 
-## Tela de Contato com forms.py e Django Widget Tweaks
+## 3 - Tela de Contato com forms.py e Django Widget Tweaks
 
 https://pypi.org/project/django-widget-tweaks/
 
@@ -600,7 +600,7 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
 
 
 
-### Django Bootstrap
+## 4 - Django Bootstrap
 
 https://github.com/zostera/django-bootstrap4
 
@@ -686,9 +686,8 @@ Leia [django-cbv-tutorial](https://github.com/rg3915/django-cbv-tutorial)
 E veja a Live [Django Class Based View como você nunca viu](https://youtu.be/C7Ecugxa7ic)
 
 
----
 
-### Django Crispy Forms
+## 5 - Django Crispy Forms
 
 https://django-crispy-forms.readthedocs.io/en/latest/
 
@@ -752,9 +751,8 @@ class PersonCrispyCreate(CreateView):
 ```
 
 
----
 
-### Upload File
+## 6 - Upload File
 
 
 YouTube: https://youtu.be/yCh7iINWMRs
@@ -924,10 +922,9 @@ def photo_create(request):
     return render(request, template_name, context)
 ```
 
----
 
 
-### POST via Ajax (Live Code)
+## 7 - POST via Ajax (Live Code)
 
 1. Requer jQuery
 2. Criar formulário num Modal
@@ -1002,7 +999,6 @@ def person_list(request):
 path('create/ajax/', v.person_create_ajax, name='person_create_ajax'),
 ```
 
----
 
 
 4. Criar View que salva os dados
@@ -1036,7 +1032,6 @@ def to_dict(self):
     }
 ```
 
----
 
 
 
@@ -1115,7 +1110,6 @@ Editar `crm/person_list.html`
 {% endblock js %}
 ```
 
----
 
 
 
@@ -1145,16 +1139,14 @@ function closeModal() {
 
 
 
----
 
-### POST com VueJS
+## 8 - POST com VueJS
 
 1. Requer VueJS + Axios
 2. Criar um template com função
 3. Editar views.py
 4. Fazer o Post via Axios
 
----
 
 1. Requer VueJS + Axios
 
@@ -1381,8 +1373,7 @@ deletePerson(item) {
 ```
 
 
----
 
 ![thor](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/thor.gif)
 
-Obrigado!
+Valeu! Até a próxima.
