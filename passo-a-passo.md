@@ -546,12 +546,10 @@ def send_contact(request):
     form = ContactForm(request.POST or None)
 
     if request.method == 'POST':
-        data = request.POST
-        subject = data.get('subject')
-        message = data.get('message')
-        sender = data.get('sender')
-
         if form.is_valid():
+            subject = form.cleaned_data.get('subject')
+            message = form.cleaned_data.get('message')
+            sender = form.cleaned_data.get('sender')
             send_mail(
                 subject,
                 message,
