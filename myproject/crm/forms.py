@@ -16,7 +16,7 @@ class PersonForm1(forms.ModelForm):
 
     class Meta:
         model = Person
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name')
 
     def __init__(self, *args, **kwargs):
         super(PersonForm1, self).__init__(*args, **kwargs)
@@ -56,7 +56,7 @@ class PersonForm(forms.ModelForm):
 
 
 class ContactForm(forms.Form):
-    subject = forms.CharField(max_length=50)
+    subject = forms.CharField(max_length=100)
     message = forms.CharField(widget=forms.Textarea)
     sender = forms.EmailField()
     cc_myself = forms.BooleanField(required=False)
@@ -65,7 +65,7 @@ class ContactForm(forms.Form):
 class PersonPhotoForm(forms.ModelForm):
     required_css_class = 'required'
     # photo = forms.ImageField(required=False)
-    photo = forms.FileField(
+    photo = forms.ImageField(
         required=False,
         widget=forms.ClearableFileInput(attrs={'multiple': True})
     )

@@ -1,4 +1,4 @@
-<!-- person_form1.html -->
+<!-- person_form2.html -->
 {% extends "base.html" %}
 
 {% block css %}
@@ -20,19 +20,17 @@
     <form class="form-horizontal" action="." method="POST">
       {% csrf_token %}
       <div class="col-sm-6">
-        <div class="form-group">
-          <!-- <label for="{{ form.first_name.id_for_label }}" class="required">Nome</label> -->
-          {{ form.first_name.label_tag }}
-          {{ form.first_name }}
-          {{ form.first_name.errors }}
-        </div>
-
-        <div class="form-group">
-          {{ form.last_name.label_tag }}
-          {{ form.last_name }}
-          {{ form.last_name.errors }}
-        </div>
-
+        <!-- {% for field in form %}
+          <div class="form-group">
+            {{ field.label_tag }}
+            {{ field }}
+            {{ field.errors }}
+            {% if field.help_text %}
+              <small class="text-muted">{{ field.help_text|safe }}</small>
+            {% endif %}
+          </div>
+        {% endfor %} -->
+        {{ form.as_p }}
         <div class="form-group">
           <button type="submit" class="btn btn-primary">Salvar</button>
         </div>

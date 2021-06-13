@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+# from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
 from .forms import (
@@ -29,36 +30,7 @@ def person_detail(request, pk):
 
 
 # def person_create(request):
-#     template_name = 'crm/person_form0.html'
-
-#     if request.method == 'POST':
-#         first_name = request.POST.get('first_name')
-#         last_name = request.POST.get('last_name')
-
-#         Person.objects.create(first_name=first_name, last_name=last_name)
-
-#         return redirect('crm:person_list')
-
-#     return render(request, template_name)
-
-
-# def person_create(request):
-#     template_name = 'crm/person_form0.html'
-#     form = PersonForm0(request.POST or None)
-
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             form.save()
-#             return redirect('crm:person_list')
-#         else:
-#             print(form.errors)
-
-#     context = {'form': form}
-#     return render(request, template_name, context)
-
-
-# def person_create(request):
-#     template_name = 'crm/person_form1.html'
+#     template_name = 'crm/person_form2.html'
 #     form = PersonForm1(request.POST or None)
 
 #     if request.method == 'POST':
@@ -102,12 +74,10 @@ def send_contact(request):
     form = ContactForm(request.POST or None)
 
     if request.method == 'POST':
-        data = request.POST
-        subject = data.get('subject')
-        message = data.get('message')
-        sender = data.get('sender')
-
         if form.is_valid():
+            subject = form.cleaned_data.get('subject')
+            message = form.cleaned_data.get('message')
+            sender = form.cleaned_data.get('sender')
             send_mail(
                 subject,
                 message,
@@ -138,8 +108,7 @@ class PersonCrispyCreate(CreateView):
 #     form = PersonPhotoForm(request.POST or None)
 
 #     if request.method == 'POST':
-#         photo = request.FILES.get('photo')
-
+#         photo = request.FILES.get('photo')  # pega apenas um arquivo.
 #         if form.is_valid():
 #             person = form.save()
 #             Photo.objects.create(person=person, photo=photo)
@@ -148,13 +117,12 @@ class PersonCrispyCreate(CreateView):
 #     context = {'form': form}
 #     return render(request, template_name, context)
 
-
 def photo_create(request):
     template_name = 'crm/person_photo_form.html'
     form = PersonPhotoForm(request.POST or None)
 
     if request.method == 'POST':
-        photos = request.FILES.getlist('photo')
+        photos = request.FILES.getlist('photo')  # pega vários arquivos.
 
         if form.is_valid():
             person = form.save()
@@ -168,7 +136,7 @@ def photo_create(request):
     return render(request, template_name, context)
 
 
-def person_create_ajax(request):
+def photo_create_ajax(request):
     form = PersonForm1(request.POST or None)
 
     if request.method == 'POST':

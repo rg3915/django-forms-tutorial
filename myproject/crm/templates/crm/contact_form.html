@@ -1,4 +1,3 @@
-<!-- contact_form.html -->
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
@@ -16,13 +15,14 @@
   </style>
 
   <h1>Send e-mail with Widget Tweaks</h1>
+
   <form class="form" method="POST">
     {% csrf_token %}
     {% for field in form.visible_fields %}
       <div class="form-group{% if field.errors %} has-error {% endif %}">
         <label for="{{ field.id_for_label }}">
           {% if field.field.required %}
-            <span class="required">{{ field.label }} </span>
+            <span class="required">{{ field.label }}</span>
           {% else %}
             {{ field.label }}
           {% endif %}
@@ -33,7 +33,7 @@
         {% endfor %}
       </div>
     {% endfor %}
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Enviar</button>
   </form>
 
 {% endblock content %}

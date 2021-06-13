@@ -27,19 +27,21 @@
             <a href="{% url 'crm:person_update' object.pk %}">
               <i class="fa fa-edit"></i>
             </a>
-            <!-- <a href="{ url 'crm:person_delete' object.pk %}" style="padding-left: 7px">
+            <a href="{ url 'crm:person_delete' object.pk %}" style="padding-left: 7px">
               <i class="fa fa-close no"></i>
-            </a> -->
+            </a>
           </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
   {% include "includes/pagination.html" %}
+
   {% include "./person_modal.html" %}
 {% endblock content %}
 
 {% block js %}
+
 
 <script>
   $('form').on('submit', function(e) {
@@ -50,12 +52,10 @@
       type: 'POST',
       data: postData,
       success: function(response) {
-        // TODO
-        console.log(response.data)
         addItem(response)
       },
       error: function(xhr) {
-        console.log('Erro');
+        console.log('Erro')
       },
       complete: function() {
         closeModal()
@@ -67,9 +67,9 @@
   function addItem(response) {
     const data = response.data[0];
     const template = '<tr>' +
-      '<td>' + data.first_name + ' ' + data.last_name + '</td>' +
-      '<td>' + data.email + '</td>' +
-      '</tr>'
+    '<td>' + data.first_name + ' ' + data.last_name + '</td>' +
+    '<td>' + data.email + '</td>' +
+    '</tr>'
 
     $('table tbody').append(template)
   };
