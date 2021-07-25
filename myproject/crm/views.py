@@ -9,6 +9,7 @@ from .forms import (
     PersonForm,
     PersonForm0,
     PersonForm1,
+    PersonForm2,
     PersonPhotoForm
 )
 from .models import Person, Photo
@@ -162,6 +163,17 @@ def person_json(request):
 def person_vuejs_create(request):
     # Salva os dados
     form = PersonForm1(request.POST or None)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            person = form.save()
+            data = person.to_dict()
+            return JsonResponse({'data': data})
+
+
+def person_vuejs_update(request, pk):
+    person = Person.objects.get(pk=pk)
+    form = PersonForm2(request.POST or None, instance=person)
 
     if request.method == 'POST':
         if form.is_valid():

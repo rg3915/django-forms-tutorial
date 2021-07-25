@@ -14,6 +14,9 @@
   .is-link {
     cursor: pointer;
   }
+  .link {
+    color:  #007bff;
+  }
 </style>
 
 {% endblock css %}
@@ -50,6 +53,7 @@
       <tr>
         <th>Nome</th>
         <th>E-mail</th>
+        <th>Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -59,11 +63,46 @@
         </td>
         <td>${ person.email }</td>
         <td>
-          <i class="fa fa-close no is-link" @click="deletePerson(person)"></i>
+          <i class="fa fa-pencil-square-o link is-link" data-toggle="modal" data-target="#myModal" @click="editPerson(person)"></i>
+          <i class="fa fa-close no is-link ml-2" @click="deletePerson(person)"></i>
         </td>
       </tr>
     </tbody>
   </table>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="myModalLabel">Editar</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form @submit.prevent="submitEditForm" class="form-horizontal" method="POST">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="required">Nome</label>
+              <input type="text" v-model="editForm.first_name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="required">Sobrenome</label>
+              <input type="text" v-model="editForm.last_name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="required">E-mail</label>
+              <input type="text" v-model="editForm.email" class="form-control">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ref="clickMe">Fechar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
 </div>
 
@@ -80,6 +119,12 @@
     data: {
       persons: [],
       form: {
+        first_name: '',
+        last_name: '',
+        email: '',
+      },
+      editForm: {
+        id: '',
         first_name: '',
         last_name: '',
         email: '',
@@ -116,6 +161,25 @@
             this.persons.push(response.data.data)
           })
           this.form = {}
+      },
+      editPerson(item) {
+        this.editForm.id = item.id
+        this.editForm.first_name = item.first_name
+        this.editForm.last_name = item.last_name
+        this.editForm.email = item.email
+      },
+      submitEditForm() {
+        let bodyFormData = new FormData()
+
+        bodyFormData.append('first_name', this.editForm.first_name)
+        bodyFormData.append('last_name', this.editForm.last_name)
+        bodyFormData.append('email', this.editForm.email)
+
+        axios.post(`/crm/${this.editForm.id}/vuejs/update/`, bodyFormData)
+          .then(response => {
+            this.$refs.clickMe.click()  // Fecha o modal
+            this.getData()
+          })
       },
       deletePerson(item) {
         axios.delete(`/crm/${item.id}/vuejs/delete/`)
