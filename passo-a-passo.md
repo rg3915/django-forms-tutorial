@@ -1371,6 +1371,120 @@ deletePerson(item) {
 ```
 
 
+## 9 - Editando com VueJS
+
+```python
+# forms.py
+class PersonForm2(forms.ModelForm):
+    required_css_class = 'required'
+
+    class Meta:
+        model = Person
+        fields = ('first_name', 'last_name', 'email')
+
+    def __init__(self, *args, **kwargs):
+        super(PersonForm2, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+```
+
+
+```python
+# crm/urls.py
+...
+path('<int:pk>/vuejs/update/', v.person_vuejs_update, name='person_vuejs_update'),
+...
+```
+
+
+```python
+# crm/views.py
+def person_vuejs_update(request, pk):
+    person = Person.objects.get(pk=pk)
+    form = PersonForm2(request.POST or None, instance=person)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            person = form.save()
+            data = person.to_dict()
+            return JsonResponse({'data': data})
+```
+
+```html
+...
+<i class="fa fa-pencil-square-o link is-link" data-toggle="modal" data-target="#myModal" @click="editPerson(person)"></i>
+...
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="myModalLabel">Editar</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form @submit.prevent="submitEditForm" class="form-horizontal" method="POST">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="required">Nome</label>
+              <input type="text" v-model="editForm.first_name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="required">Sobrenome</label>
+              <input type="text" v-model="editForm.last_name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="required">E-mail</label>
+              <input type="text" v-model="editForm.email" class="form-control">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ref="clickMe">Fechar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script>
+  ...
+    data: {
+      ...
+      editForm: {
+        id: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+      }
+    },
+    methods: {
+      // ...
+      editPerson(item) {
+        this.editForm.id = item.id
+        this.editForm.first_name = item.first_name
+        this.editForm.last_name = item.last_name
+        this.editForm.email = item.email
+      },
+      submitEditForm() {
+        let bodyFormData = new FormData()
+
+        bodyFormData.append('first_name', this.editForm.first_name)
+        bodyFormData.append('last_name', this.editForm.last_name)
+        bodyFormData.append('email', this.editForm.email)
+
+        axios.post(`/crm/${this.editForm.id}/vuejs/update/`, bodyFormData)
+          .then(response => {
+            this.$refs.clickMe.click()  // Fecha o modal
+            this.getData()
+          })
+      }
+    }
+  });
+</script>
+```
+
 
 ![thor](https://raw.githubusercontent.com/rg3915/django-grupy-jundiai/master/img/thor.gif)
 
