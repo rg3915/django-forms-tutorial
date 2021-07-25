@@ -1374,7 +1374,7 @@ deletePerson(item) {
 ## 9 - Editando com VueJS
 
 ```python
-# forms.py
+# crm/forms.py
 class PersonForm2(forms.ModelForm):
     required_css_class = 'required'
 
@@ -1411,6 +1411,7 @@ def person_vuejs_update(request, pk):
 ```
 
 ```html
+<!-- person_vuejs_list.html -->
 ...
 <i class="fa fa-pencil-square-o link is-link" data-toggle="modal" data-target="#myModal" @click="editPerson(person)"></i>
 ...
